@@ -14,6 +14,8 @@ jdk1.8 , maven-3.6.3 , idea , mysql8.0 , HBuilder X
 
 详细配置说明文件中有提到
 
+如何方便请给我一个小星星，表示鼓励，谢谢啦
+
 如下是一些效果展示
 <br/>
 ![](https://github.com/dzjboom/image/blob/master/houlaijushang/8a6237f7f238621c116dd785e4fdd13.png)    
