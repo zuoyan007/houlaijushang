@@ -1,0 +1,105 @@
+<% layout('/layouts/default.html', {title: '优惠卷选择', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-body">
+			<#form:form id="searchForm"  model="${goodsDetail}" action="${ctx}/gd/goodsDetail/listData" method="post" class="form-inline "
+			data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+			<#form:hidden path="officeCode"/>
+			<#form:hidden name="status" value="0"/>
+			<#form:hidden name="goodsProperty" value="140"/>
+
+			<div class="form-group">
+				<label class="control-label">名称：</label>
+				<div class="control-inline">
+					<#form:input path="goodsName" maxlength="128" class="form-control width-120"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary btn-sm">查询</button>
+				<button type="reset" class="btn btn-default btn-sm">重置</button>
+			</div>
+		</#form:form>
+		<div class="row">
+			<div class="col-xs-10 pr10">
+				<table id="dataGrid"></table>
+				<div id="dataGridPage"></div>
+			</div>
+			<div class="col-xs-2 pl0d">
+				<div id="selectData" class="tags-input"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<% } %>
+<script>
+	var selectData = ${isNotBlank(selectData!) ? selectData! : "{\}"},
+	selectNum = 0, dataGrid = $('#dataGrid').dataGrid({
+		searchForm: $("#searchForm"),
+		columnModel: [
+			{header:'${text("商品id")}', name:'goodsId', index:'a.goods_id', width:150, align:"center"},
+			{header:'${text("商品名称")}', name:'goodsName', index:'a.goods_name', width:150, align:"left"},
+			{header:'${text("销量")}', name:'sales', index:'a.sales', width:150, align:"center"},
+			{header:'${text("库存")}', name:'repertory', index:'a.repertory', width:150, align:"center"},
+			{header:'${text("量词")}', name:'choose', index:'a.choose', width:150, align:"center"},
+			{header:'${text("量词类型")}', name:'goodsKind', index:'a.goods_kind', width:150, align:"center", formatter: function(val, obj, row, act){
+					return js.getDictLabel(${@DictUtils.getDictListJson('choose_type')}, val, '${text("未知")}', true);
+				}},
+			{header:'${text("原价")}', name:'originalCost', index:'a.original_cost', width:150, align:"center"},
+			{header:'${text("优惠类型")}', name:'discounts', index:'a.discounts', width:150, align:"center", formatter: function(val, obj, row, act){
+					return js.getDictLabel(${@DictUtils.getDictListJson('discounts_type')}, val, '${text("未知")}', true);
+				}},
+			{header:'${text("服务")}', name:'serve', index:'a.serve', width:150, align:"center", formatter: function(val, obj, row, act){
+					return js.getDictLabel(${@DictUtils.getDictListJson('user_service_type')}, val, '${text("未知")}', true);
+				}},
+			{header:'${text("积分")}', name:'integral', index:'a.integral', width:150, align:"center"},
+			{header:'${text("商品价格")}', name:'goodPrice', index:'a.good_price', width:150, align:"center"},
+		],
+		autoGridHeight: function(){
+			var height = $(window).height() - $('#searchForm').height() - $('#dataGridPage').height() - 75;
+			$('.tags-input').height($('.ui-jqgrid').height() - 10);
+			return height;
+		},
+		showCheckbox: '${parameter.checkbox}' == 'true',
+		multiboxonly: false, // 单击复选框时再多选
+		ajaxSuccess: function(data){
+			$.each(selectData, function(key, value){
+				dataGrid.dataGrid('setSelectRow', key);
+			});
+			initSelectTag();
+		},
+		onSelectRow: function(id, isSelect, event){
+			if ('${parameter.checkbox}' == 'true'){
+				if(isSelect){
+					selectData[id] = dataGrid.dataGrid('getRowData', id);
+				}else{
+					delete selectData[id];
+				}
+			}else{
+				selectData = {};
+				selectData[id] = dataGrid.dataGrid('getRowData', id);
+			}
+			initSelectTag();
+		}
+	});
+	function initSelectTag(){
+		selectNum = 0;
+		var html = [];
+		$.each(selectData, function(key, value){
+			selectNum ++;
+			html.push('<span class="tag" id="'+key+'_tags-input"><span>'+value.goodsName+' </span>'
+					+ '<a href="#" onclick="removeSelectTag(\''+key+'\');" title="取消选择">x</a></span>');
+		});
+		html.unshift('<div class="title">当前已选择<span id="selectNum">'+selectNum+'</span>项：</div>');
+		$('#selectData').empty().append(html.join(''));
+	}
+	function removeSelectTag(key){
+		delete selectData[key];
+		dataGrid.dataGrid('resetSelection', key);
+		$('#selectNum').html(--selectNum);
+		$('#'+key+'_tags-input').remove();
+	}
+	function getSelectData(){
+		return selectData;
+	}
+</script>

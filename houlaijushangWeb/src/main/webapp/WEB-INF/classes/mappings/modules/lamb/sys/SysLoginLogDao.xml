@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lamb.sys.dao.SysLoginLogDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="SysLoginLog">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+
+	<insert id="calcDataDD" >
+		insert into sys_login_log_DD(id, day, user_id, app_type, login_count, create_date)
+		SELECT MAX(LOGIN_LOG_ID), floor(create_date),user_id,app_type,count(*) login_count,now()
+		from sys_login_log where create_date between #{beginDate} and #{endDate}
+		group by floor(create_date),user_id,app_type
+	</insert>
+
+	<delete id="deleteDataDD" >
+		delete from sys_login_log_DD where day between #{beginDate} and #{endDate}
+	</delete>
+
+	<select id="getCustomerUser" resultType="com.jeesite.modules.sys.entity.EmpUser">
+		SELECT
+	a.`corp_code` AS "corpCode",
+	a.`corp_name` AS "corpName",
+	a.`status` AS "status",
+	a.`create_by` AS "createBy",
+	a.`create_date` AS "createDate",
+	a.`update_by` AS "updateBy",
+	a.`update_date` AS "updateDate",
+	a.`remarks` AS "remarks",
+	a.`user_code` AS "userCode",
+	a.`login_code` AS "loginCode",
+	a.`user_name` AS "userName",
+	a.`password` AS "password",
+	a.`email` AS "email",
+	a.`mobile` AS "mobile",
+	a.`phone` AS "phone",
+	a.`sex` AS "sex",
+	a.`avatar` AS "avatar",
+	a.`sign` AS "sign",
+	a.`wx_openid` AS "wxOpenid",
+	a.`mobile_imei` AS "mobileImei",
+	a.`user_type` AS "userType",
+	a.`ref_code` AS "refCode",
+	a.`ref_name` AS "refName",
+	a.`mgr_type` AS "mgrType",
+	a.`pwd_security_level` AS "pwdSecurityLevel",
+	a.`pwd_update_date` AS "pwdUpdateDate",
+	a.`pwd_update_record` AS "pwdUpdateRecord",
+	a.`pwd_question` AS "pwdQuestion",
+	a.`pwd_question_answer` AS "pwdQuestionAnswer",
+	a.`pwd_question_2` AS "pwdQuestion2",
+	a.`pwd_question_answer_2` AS "pwdQuestionAnswer2",
+	a.`pwd_question_3` AS "pwdQuestion3",
+	a.`pwd_question_answer_3` AS "pwdQuestionAnswer3",
+	a.`pwd_quest_update_date` AS "pwdQuestUpdateDate",
+	a.`last_login_ip` AS "lastLoginIp",
+	a.`last_login_date` AS "lastLoginDate",
+	a.`freeze_date` AS "freezeDate",
+	a.`freeze_cause` AS "freezeCause",
+	a.`user_weight` AS "userWeight",
+	a.`extend_s1` AS "extend.extendS1",
+	a.`extend_s2` AS "extend.extendS2",
+	a.`extend_s3` AS "extend.extendS3",
+	a.`extend_s4` AS "extend.extendS4",
+	a.`extend_s5` AS "extend.extendS5",
+	a.`extend_s6` AS "extend.extendS6",
+	a.`extend_s7` AS "extend.extendS7",
+	a.`extend_s8` AS "extend.extendS8",
+	a.`extend_i1` AS "extend.extendI1",
+	a.`extend_i2` AS "extend.extendI2",
+	a.`extend_i3` AS "extend.extendI3",
+	a.`extend_i4` AS "extend.extendI4",
+	a.`extend_f1` AS "extend.extendF1",
+	a.`extend_f2` AS "extend.extendF2",
+	a.`extend_f3` AS "extend.extendF3",
+	a.`extend_f4` AS "extend.extendF4",
+	a.`extend_d1` AS "extend.extendD1",
+	a.`extend_d2` AS "extend.extendD2",
+	a.`extend_d3` AS "extend.extendD3",
+	a.`extend_d4` AS "extend.extendD4",
+	e.`corp_code` AS "employee.corpCode",
+	e.`corp_name` AS "employee.corpName",
+	e.`status` AS "employee.status",
+	e.`create_by` AS "employee.createBy",
+	e.`create_date` AS "employee.createDate",
+	e.`update_by` AS "employee.updateBy",
+	e.`update_date` AS "employee.updateDate",
+	e.`remarks` AS "employee.remarks",
+	e.`emp_code` AS "employee.empCode",
+	e.`emp_no` AS "employee.empNo",
+	e.`emp_name` AS "employee.empName",
+	e.`emp_name_en` AS "employee.empNameEn",
+	o.`status` AS "employee.office.status",
+	o.`create_by` AS "employee.office.createBy",
+	o.`create_date` AS "employee.office.createDate",
+	o.`update_by` AS "employee.office.updateBy",
+	o.`update_date` AS "employee.office.updateDate",
+	o.`remarks` AS "employee.office.remarks",
+	o.`parent_code` AS "employee.office.parentCode",
+	o.`parent_codes` AS "employee.office.parentCodes",
+	o.`tree_sort` AS "employee.office.treeSort",
+	o.`tree_sorts` AS "employee.office.treeSorts",
+	o.`tree_leaf` AS "employee.office.treeLeaf",
+	o.`tree_level` AS "employee.office.treeLevel",
+	o.`tree_names` AS "employee.office.treeNames",
+	o.`office_code` AS "employee.office.officeCode",
+	o.`view_code` AS "employee.office.viewCode",
+	o.`office_name` AS "employee.office.officeName",
+	o.`full_name` AS "employee.office.fullName",
+	o.`office_type` AS "employee.office.officeType",
+	o.`leader` AS "employee.office.leader",
+	o.`phone` AS "employee.office.phone",
+	o.`address` AS "employee.office.address",
+	o.`zip_code` AS "employee.office.zipCode",
+	o.`email` AS "employee.office.email",
+	c.`status` AS "employee.company.status",
+	c.`create_by` AS "employee.company.createBy",
+	c.`create_date` AS "employee.company.createDate",
+	c.`update_by` AS "employee.company.updateBy",
+	c.`update_date` AS "employee.company.updateDate",
+	c.`remarks` AS "employee.company.remarks",
+	c.`parent_code` AS "employee.company.parentCode",
+	c.`parent_codes` AS "employee.company.parentCodes",
+	c.`tree_sort` AS "employee.company.treeSort",
+	c.`tree_sorts` AS "employee.company.treeSorts",
+	c.`tree_leaf` AS "employee.company.treeLeaf",
+	c.`tree_level` AS "employee.company.treeLevel",
+	c.`tree_names` AS "employee.company.treeNames",
+	c.`company_code` AS "employee.company.companyCode",
+	c.`view_code` AS "employee.company.viewCode",
+	c.`company_name` AS "employee.company.companyName",
+	c.`full_name` AS "employee.company.fullName",
+	ar.`area_code` AS "employee.company.area.areaCode",
+	ar.`area_name` AS "employee.company.area.areaName",
+	ar.`area_type` AS "employee.company.area.areaType"
+FROM
+	`js_sys_user` a
+	JOIN `js_sys_employee` e ON e.emp_code = a.ref_code
+	AND a.user_type = #{userType}
+	LEFT JOIN `js_sys_office` o ON o.office_code=e.office_code
+	LEFT JOIN `js_sys_company` c ON c.company_code=e.company_code
+	LEFT JOIN `js_sys_area` ar ON ar.area_code = c.area_code
+	WHERE a.`user_code` = #{userCode}
+	</select>
+
+
+	<insert id="calcLoginLogDD" >
+		insert into sys_login_log_DD(id, day, user_id, app_type, login_count, create_date)
+		SELECT (select uuid()),(select  date_format(create_date,'%Y-%m-%d')),user_id,app_type,count(*) login_count,now()
+		from sys_login_log where create_date between #{beginDate} and #{endDate}
+		group by  (select  date_format(create_date,'%Y-%m-%d')),user_id,app_type
+	</insert>
+
+	<delete id="deleteLoginLogDD" >
+		delete FROM sys_login_log_DD where day between #{beginDate} and #{endDate}
+	</delete>
+
+	<insert id="calcLoginLogHH" >
+		insert into sys_login_log_hh(id, hour, user_id, app_type, login_count, create_date)
+		SELECT (select uuid()),(select  DATE_FORMAT(create_date, '%Y-%m-%d %H')),user_id,app_type,count(*) login_count,now()
+		from sys_login_log where create_date between #{beginDate} and #{endDate}
+		group by (select  DATE_FORMAT(create_date, '%Y-%m-%d %H')),user_id,app_type
+	</insert>
+
+	<delete id="deleteLoginLogHH" >
+		delete FROM sys_login_log_hh where hour between #{beginDate} and #{endDate}
+	</delete>
+
+	<insert id="calcLogHH" >
+		insert into sys_log_hh(id, hour, user_id, app_type, oper_count, create_date)
+		SELECT (select uuid()), (select  DATE_FORMAT(create_date, '%Y-%m-%d %H')),create_by,if(device_name like 'Android','3mApp','3mpc'),count(*) oper_count,now()
+		from js_sys_log  where create_date between #{beginDate} and #{endDate}
+		group by (select  DATE_FORMAT(create_date, '%Y-%m-%d %H')),create_by
+	</insert>
+
+	<delete id="deleteLogHH" >
+		delete FROM sys_log_hh where hour between #{beginDate} and #{endDate}
+	</delete>
+</mapper>

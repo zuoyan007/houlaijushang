@@ -1,0 +1,129 @@
+<% layout('/layouts/default.html', {title: '风险点管理', libs: ['dataGrid']}){ %>
+
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa icon-notebook"></i> ${text('风险点管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<% if(hasPermi('risk:riskPoint:edit')){ %>
+					<a href="${ctx}/risk/riskPoint/form" class="btn btn-default btnTool" title="${text('新增风险点')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${riskPoint}" action="${ctx}/risk/riskPoint/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('风险类型')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="riskPointType" dictType="risk_point_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('风险名称')}：</label>
+					<div class="control-inline">
+						<#form:input path="riskPointName" maxlength="300" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('地址')}：</label>
+					<div class="control-inline">
+						<#form:input path="address" maxlength="500" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('经度')}：</label>
+					<div class="control-inline">
+						<#form:input path="longitude" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('纬度')}：</label>
+					<div class="control-inline">
+						<#form:input path="latitude" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('联系人')}：</label>
+					<div class="control-inline">
+						<#form:input path="linkman" maxlength="100" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('联系电话')}：</label>
+					<div class="control-inline">
+						<#form:input path="linkmanPhone" maxlength="100" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('风险描述')}：</label>
+					<div class="control-inline">
+						<#form:input path="describe" maxlength="3000" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('状态')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="status" dictType="sys_search_status" blankOption="true" class="form-control isQuick"/>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+	$(function () {
+		var map = new AMap.Map('container');
+	});
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("风险名称")}', name:'riskPointName', index:'a.risk_point_name', width:150,align:"center", frozen:true, formatter: function(val, obj, row, act){
+				return '<a href="${ctx}/risk/riskPoint/form?riskPointId='+row.riskPointId+'" class="btnList" data-title="${text("编辑风险点")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("风险类型")}', name:'riskPointType', index:'a.risk_point_type', width:150, align:"center", formatter: function(val, obj, row, act){
+				return js.getDictLabel(${@DictUtils.getDictListJson('risk_point_type')}, val, '${text("未知")}', true);
+			}},
+		{header:'${text("地址")}', name:'address', index:'a.address', width:150, align:"center"},
+		{header:'${text("经度")}', name:'longitude', index:'a.longitude', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.formatNumber(val, 2, false, ''); // 数值类型格式化 (原始数值, 小数位数, 是否千分位, 默认值，金额情况下设置0.00);
+		}},
+		{header:'${text("维度")}', name:'latitude', index:'a.latitude', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.formatNumber(val, 2, false, ''); // 数值类型格式化 (原始数值, 小数位数, 是否千分位, 默认值，金额情况下设置0.00);
+		}},
+		{header:'${text("联系人")}', name:'linkman', index:'a.linkman', width:150, align:"center"},
+		{header:'${text("联系电话")}', name:'linkmanPhone', index:'a.linkman_phone', width:150, align:"center"},
+		{header:'${text("风险描述")}', name:'describe', index:'a.describe', width:150, align:"center"},
+		{header:'${text("状态")}', name:'status', index:'a.status', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_search_status')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("更新时间")}', name:'updateDate', index:'a.update_date', width:150, align:"center"},
+
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('risk:riskPoint:edit')){ %>
+				actions.push('<a href="${ctx}/risk/riskPoint/form?riskPointId='+row.riskPointId+'" class="btnList" title="${text("编辑新增风险点")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				actions.push('<a href="${ctx}/risk/riskPoint/delete?riskPointId='+row.riskPointId+'" class="btnList" title="${text("删除新增风险点")}" data-confirm="${text("确认要删除风险点吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+
+	}
+});
+</script>

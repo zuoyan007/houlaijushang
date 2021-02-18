@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lamb.sys.dao.SysDictDataDao">
+
+    <select id="syncTreeType" resultType="DictType">
+        SELECT dict_type "dictType" FROM js_sys_dict_data
+        WHERE update_date >=#{updateDate}
+        and ( 1=2
+        <foreach item="item" index="index" collection="dictTypeArray" open="" separator="or" close="">
+            dict_type = #{item}
+        </foreach>
+        )
+        GROUP BY dict_type
+    </select>
+
+
+    <select id="findList" resultType="SysDictData">
+        SELECT ${sqlMap.column.toSql()}
+        FROM ${sqlMap.table.toSql()}
+        <where>
+            ${sqlMap.where.toSql()}
+            <if test="keyword != null and keyword != ''">
+                <bind name="_keyword" value="'%'+ keyword +'%'" />
+                AND (a.dict_label LIKE #{_keyword} or a.dict_value LIKE #{_keyword}
+                or o.dict_name LIKE #{_keyword}  or o.dict_type LIKE #{_keyword}
+                )
+            </if>
+            <if test="dictValueArray != null and dictValueArray.length >0">
+                <foreach item="item" index="index" collection="dictValueArray" open="and  (" separator="or" close=")">
+                    dict_value = #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY ${sqlMap.order.toSql()}
+    </select>
+
+    <select id="syncList" resultType="SysDictData">
+        SELECT
+        a.`status` AS "status",
+        a.`parent_code` AS "parentCode",
+        a.`tree_sort` AS "treeSort",
+        a.`tree_leaf` AS "treeLeaf",
+        a.`tree_level` AS "treeLevel",
+        a.`dict_code` AS "dictCode",
+        a.`dict_label` AS "dictLabel",
+        a.`dict_value` AS "dictValue",
+        a.`dict_type` AS "dictType",
+        a.`remarks` AS "remarks"
+        FROM ${sqlMap.table.toSql()}
+        <where>
+            ${sqlMap.where.toSql()}
+            <if test="isAppUse ==1 ">
+                and  exists (
+                    select * from js_sys_dict_data t1 where t1.status=0 and  t1.dict_type='sys_app_use_dict'
+                    and t1.dict_Value=a.dict_type
+                )
+            </if>
+        </where>
+        ORDER BY ${sqlMap.order.toSql()}
+    </select>
+
+
+    <select id="syncType" resultType="DictType">
+        SELECT
+       id,dict_type
+       from js_sys_dict_type a
+        <where>
+            status=0
+            and exists (
+                select * from js_sys_dict_data t1 where t1.status=0 and t1.update_date >= #{updateDate}
+                and t1.dict_type=a.dict_type
+            )
+            and exists (
+                select * from js_sys_dict_data t1 where t1.status=0 and t1.dict_type='sys_app_use_dict'
+                and t1.dict_Value=a.dict_type
+            )
+        </where>
+    </select>
+<!--通过 行业industry_code  得到 检查要素-->
+    <select id="checkPointCodeByIndustryCode" resultType="SysDictData">
+        SELECT
+      *
+        from js_sys_dict_data sysDictData
+        <where>
+            and exists (
+            SELECT * FROM km_ht_type_map tm WHERE tm.check_point_code=sysDictData.dict_value
+                AND tm.`status` = 0
+                and tm.use_type =#{useType}
+            <if test="sysDictData.industryCodeArray != null and sysDictData.industryCodeArray.length >0">
+                <foreach item="item" index="index" collection="sysDictData.industryCodeArray" open="and  (" separator="or" close=")">
+                    tm.industry_code = #{item}
+                </foreach>
+            </if>
+
+            )
+        </where>
+        AND sysDictData.parent_code='0'
+    </select>
+    <select id="findSonDictData456" resultType="SysDictData">
+        SELECT *
+        FROM js_sys_dict_data
+        <where>
+<!--            <if test="sonIndustryCodeArray != null and sonIndustryCodeArray.length >0">-->
+                <foreach collection="sonIndustryCodeArray" index="index" item="item" separator="or">
+                    <bind name="item" value="'%,'+ item +',%'" />
+                                parent_codes like #{item}
+                </foreach>
+<!--            </if>-->
+        </where>
+    </select>
+
+    <select id="checkSonDictData" resultType="SysDictData">
+        SELECT ${sqlMap.column.toSql()}
+        FROM ${sqlMap.table.toSql()}
+        <where>
+            ${sqlMap.where.toSql()}
+            <if test="sonIndustryCodeArray != null and sonIndustryCodeArray.length >0">
+                <foreach item="item" index="index" collection="sonIndustryCodeArray" open="and  (" separator="or" close=")">
+                    parent_codes like CONCAT(CONCAT('%',#{item}),'%')
+                </foreach>
+            </if>
+        </where>
+        ORDER BY ${sqlMap.order.toSql()}
+    </select>
+</mapper>

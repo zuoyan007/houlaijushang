@@ -1,0 +1,96 @@
+<% layout('/layouts/default.html', {title: '优惠卷选择', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-body">
+			<#form:form id="searchForm" model="${CouponType}" action="${ctx}/cp/couponType/listData" method="post" class="form-inline "
+			data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+			<#form:hidden path="officeCode"/>
+			<#form:hidden name="status" value="0"/>
+			<div class="form-group">
+				<label class="control-label">名称：</label>
+				<div class="control-inline">
+					<#form:input path="couponName" maxlength="100" class="form-control width-180"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary btn-sm">查询</button>
+				<button type="reset" class="btn btn-default btn-sm">重置</button>
+			</div>
+		</#form:form>
+		<div class="row">
+			<div class="col-xs-10 pr10">
+				<table id="dataGrid"></table>
+				<div id="dataGridPage"></div>
+			</div>
+			<div class="col-xs-2 pl0">
+				<div id="selectData" class="tags-input"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<% } %>
+<script>
+	var selectData = ${isNotBlank(selectData!) ? selectData! : "{\}"},
+	selectNum = 0, dataGrid = $('#dataGrid').dataGrid({
+		searchForm: $("#searchForm"),
+		columnModel: [
+			{header:'${text("优惠id")}', name:'couponId', index:'a.coupon_id', width:150, align:"center"},
+			{header:'${text("优惠名称")}', name:'couponName', index:'a.coupon_name', width:150, align:"center"},
+			{header:'${text("优惠满额")}', name:'couponTerms', index:'a.coupon_terms', width:150, align:"center", formatter: function(val, obj, row, act){
+					return js.formatNumber(val, 2, false, ''); // 数值类型格式化 (原始数值, 小数位数, 是否千分位, 默认值，金额情况下设置0.00);
+				}},
+			{header:'${text("优惠减额")}', name:'couponCut', index:'a.coupon_cut', width:150, align:"center", formatter: function(val, obj, row, act){
+					return js.formatNumber(val, 2, false, ''); // 数值类型格式化 (原始数值, 小数位数, 是否千分位, 默认值，金额情况下设置0.00);
+				}},
+			{header:'${text("优惠开始时间")}', name:'couponStartTime', index:'a.coupon_start_time', width:150, align:"center"},
+			{header:'${text("优惠结束时间")}', name:'couponEndTime', index:'a.coupon_end_time', width:150, align:"center"},
+		],
+		autoGridHeight: function(){
+			var height = $(window).height() - $('#searchForm').height() - $('#dataGridPage').height() - 75;
+			$('.tags-input').height($('.ui-jqgrid').height() - 10);
+			return height;
+		},
+		showCheckbox: '${parameter.checkbox}' == 'true',
+		multiboxonly: false, // 单击复选框时再多选
+		ajaxSuccess: function(data){
+			$.each(selectData, function(key, value){
+				dataGrid.dataGrid('setSelectRow', key);
+			});
+			initSelectTag();
+		},
+		onSelectRow: function(id, isSelect, event){
+			if ('${parameter.checkbox}' == 'true'){
+				if(isSelect){
+					selectData[id] = dataGrid.dataGrid('getRowData', id);
+				}else{
+					delete selectData[id];
+				}
+			}else{
+				selectData = {};
+				selectData[id] = dataGrid.dataGrid('getRowData', id);
+			}
+			initSelectTag();
+		}
+	});
+	function initSelectTag(){
+		selectNum = 0;
+		var html = [];
+		$.each(selectData, function(key, value){
+			selectNum ++;
+			html.push('<span class="tag" id="'+key+'_tags-input"><span>'+value.couponName+' </span>'
+					+ '<a href="#" onclick="removeSelectTag(\''+key+'\');" title="取消选择">x</a></span>');
+		});
+		html.unshift('<div class="title">当前已选择<span id="selectNum">'+selectNum+'</span>项：</div>');
+		$('#selectData').empty().append(html.join(''));
+	}
+	function removeSelectTag(key){
+		delete selectData[key];
+		dataGrid.dataGrid('resetSelection', key);
+		$('#selectNum').html(--selectNum);
+		$('#'+key+'_tags-input').remove();
+	}
+	function getSelectData(){
+		return selectData;
+	}
+</script>

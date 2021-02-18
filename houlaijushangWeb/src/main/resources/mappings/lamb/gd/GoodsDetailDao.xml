@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lamb.gd.dao.GoodsDetailDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="GoodsDetail">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+    <select id="findYouLike" resultType="com.lamb.gd.entity.GoodsDetail">
+        select 	*
+        FROM goods_detail WHERE goods_property !="140"
+        ORDER BY sales DESC limit 0, 20
+    </select>
+</mapper>

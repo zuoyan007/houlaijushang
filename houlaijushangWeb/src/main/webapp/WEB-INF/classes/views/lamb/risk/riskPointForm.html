@@ -1,0 +1,181 @@
+<% layout('/layouts/default.html', {title: '风险点管理', libs: ['validate','fileupload']}){ %>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=d98771b7f197006dad8bf0d8494daf43"></script>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa icon-note"></i> ${text(riskPoint.isNewRecord ? '新增风险点' : '编辑风险点')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<div id="container"></div>
+		<#form:form id="inputForm" model="${riskPoint}" action="${ctx}/risk/riskPoint/save" method="post" class="form-horizontal">
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<#form:hidden path="riskPointId"/>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('风险类型')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:select path="riskPointType" dictType="risk_point_type" blankOption="true" class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('风险名称')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="riskPointName" maxlength="300" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('地址')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="address" maxlength="500" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('经度')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="longitude" class="form-control number"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('纬度')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="latitude" class="form-control number"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('联系人')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="linkman" maxlength="100" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('联系电话')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="linkmanPhone" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('风险描述')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-10">
+								<#form:textarea path="describe" rows="4" maxlength="500" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2">
+								<span class="required hide">*</span> ${text('图片上传')}：</label>
+							<div class="col-sm-10">
+								<#form:fileupload id="uploadImage" bizKey="${riskPoint.id}" bizType="riskPoint_image"
+									uploadType="image" class="" readonly="false" preview="true"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<% if (hasPermi('risk:riskPoint:edit')){ %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+						<% } %>
+						<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<style>
+    #container {width:100%; height: 250px; }
+</style>
+<script>
+    $(function () {
+        let mapOptions = new Object();
+        mapOptions.zoom = 10; // 级别
+        mapOptions.center = [109.14370, 33.93963]; // 中心点坐标
+        mapOptions.viewMode = '3D'; // 使用3D视图
+        let map = new AMap.Map('container', mapOptions);
+        map.setMapStyle('amap://styles/02e600c620f0065d308f501c765a5a45');
+
+
+        var clickHandler = function(e) {
+
+            $("#longitude").val(e.lnglat.getLng());
+
+            $("#latitude").val(e.lnglat.getLat());
+
+            getPositionByLonLats(e.lnglat.getLng(),e.lnglat.getLat())
+
+        };
+
+// 绑定事件
+        map.on('click', clickHandler);
+
+
+        // 根据经纬度获得详细地址
+        function getPositionByLonLats(lng, lat) {
+            // console.log("经度："+lng+"纬度"+lat);
+            var lnglatXY = [lng, lat];// 地图上所标点的坐标
+            AMap.service('AMap.Geocoder', function() {// 回调函数
+                geocoder = new AMap.Geocoder({});
+                geocoder.getAddress(lnglatXY, function(status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        // console.log(result.regeocode.formattedAddress);
+                        var address = result.regeocode.formattedAddress;
+                        $("#address").val(address);
+                    } else {
+                    }
+                });
+            });
+        }
+
+
+
+
+        $("#inputForm").validate({
+            submitHandler: function(form){
+                js.ajaxSubmitForm($(form), function(data){
+                    js.showMessage(data.message);
+                    if(data.result == Global.TRUE){
+                        js.closeCurrentTabPage(function(contentWindow){
+                            contentWindow.page();
+                        });
+                    }
+                }, "json");
+            }
+        });
+    });
+
+</script>
