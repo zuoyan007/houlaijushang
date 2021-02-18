@@ -13,3 +13,11 @@ nginx-1.16.1/nginx-1.16.1         如果大家有可以不使用我提供的
 jdk1.8 , maven-3.6.3 , idea , mysql8.0 , HBuilder X
 
 详细配置说明文件中有提到
+
+如下是一些效果展示
+![](https://github.com/dzjboom/image/raw/master/image/1d24d312f919b124236b7cbb5ad781a.png) 
+![](https://github.com/dzjboom/image/raw/master/image/2eccb536f94b9b0a284d3449b626351.png) 
+![](https://github.com/dzjboom/image/raw/master/image/8a6237f7f238621c116dd785e4fdd13.png) 
+![](https://github.com/dzjboom/image/raw/master/image/b08a385aad89ebff4161909e74cbf5b.png) 
+![](https://github.com/dzjboom/image/raw/master/image/bb580c4b65c8fa671f651eea91ca3cc.png) 
+![](https://github.com/dzjboom/image/raw/master/image/eb38c9fd945aeb4fd59ad13c5b8b829.png) 
