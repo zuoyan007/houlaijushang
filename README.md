@@ -16,7 +16,9 @@ jdk1.8 , maven-3.6.3 , idea , mysql8.0 , HBuilder X
 
 如下是一些效果展示
 <br/>
-![](https://github.com/dzjboom/image/blob/master/houlaijushang/8a6237f7f238621c116dd785e4fdd13.png) 
+![](https://github.com/dzjboom/image/blob/master/houlaijushang/8a6237f7f238621c116dd785e4fdd13.png)    
+<br/>
+![]https://github.com/dzjboom/image/blob/master/houlaijushang/1d24d312f919b124236b7cbb5ad781a.png) 
 <br/>
 ![](https://github.com/dzjboom/image/raw/master/houlaijushang/2eccb536f94b9b0a284d3449b626351.png) 
 <br/>
